@@ -4,8 +4,5 @@
             "source": "/api/(.*)",
             "destination": "/api/$1"
         }
-    ],
-    "env": {
-        "ADMIN_CODE": "@admin_code"
-    }
+    ]
 }
