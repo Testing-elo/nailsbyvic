@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global Styles */
+@layer base {
+  body {
+    @apply bg-elegantWhite text-elegantBlack font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+}
+
+/* Custom Components */
+@layer components {
+  .elegant-input {
+    @apply w-full px-4 py-3 border border-mediumGray bg-elegantWhite text-elegantBlack 
+           focus:outline-none focus:border-elegantBlack transition-colors duration-200;
+  }
+
+  .elegant-button {
+    @apply px-8 py-3 bg-elegantBlack text-elegantWhite font-medium 
+           hover:bg-darkGray transition-all duration-300 
+           disabled:bg-mediumGray disabled:cursor-not-allowed;
+  }
+
+  .elegant-button-outline {
+    @apply px-8 py-3 border-2 border-elegantBlack text-elegantBlack font-medium 
+           hover:bg-elegantBlack hover:text-elegantWhite transition-all duration-300;
+  }
+
+  .section-padding {
+    @apply py-16 px-6 md:py-24 md:px-12;
+  }
+
+  .container-custom {
+    @apply max-w-7xl mx-auto;
+  }
+
+  .card-elegant {
+    @apply bg-elegantWhite border border-mediumGray p-6 
+           hover:shadow-xl transition-shadow duration-300;
+  }
+}
+
+/* Custom Utilities */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  @apply transition-colors duration-200;
+}
