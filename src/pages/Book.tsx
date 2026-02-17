@@ -121,6 +121,14 @@ export default function Book() {
 
             if (error) throw error;
 
+            // Delete the booked availability slot
+
+           await supabase
+            .from('availabilities')
+            .delete()
+            .eq('date', formData.date)
+            .eq('time', formData.time + ':00');
+
             // Send to webhook
             await sendBookingToWebhook(booking);
 
