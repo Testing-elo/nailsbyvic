@@ -56,14 +56,9 @@ export default function Book() {
     }
 
 function handleDetailUpdate(field: string, value: string) {
-    console.log('Updating:', field, value);
-    if (field === 'contactMethod') {
-        setFormData({ ...formData, contactMethod: value as 'email' | 'phone' | 'instagram' });
-    } else {
-        setFormData({ ...formData, [field]: value });
-    }
+    setFormData(prev => ({ ...prev, [field]: value }));
 }
-
+    
     function handleFileSelect(file: File | undefined) {
         setFormData({ ...formData, inspirationPhoto: file });
     }
