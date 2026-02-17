@@ -56,6 +56,7 @@ export default function Book() {
     }
 
 function handleDetailUpdate(field: string, value: string) {
+    console.log('Updating:', field, value);
     if (field === 'contactMethod') {
         setFormData({ ...formData, contactMethod: value as 'email' | 'phone' | 'instagram' });
     } else {
