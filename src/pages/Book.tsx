@@ -55,9 +55,13 @@ export default function Book() {
         setFormData({ ...formData, date, time });
     }
 
-  function handleDetailUpdate(field: string, value: string) {
-    setFormData({ ...formData, [field]: value } as BookingFormData);
-      
+function handleDetailUpdate(field: string, value: string) {
+    if (field === 'contactMethod') {
+        setFormData({ ...formData, contactMethod: value as 'email' | 'phone' | 'instagram' });
+    } else {
+        setFormData({ ...formData, [field]: value });
+    }
+
     }
 
     function handleFileSelect(file: File | undefined) {
