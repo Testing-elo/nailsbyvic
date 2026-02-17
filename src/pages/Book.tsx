@@ -143,8 +143,13 @@ export default function Book() {
                 return true; // Add-ons are optional
             case 3:
                 return !!formData.date && !!formData.time;
-            case 4:
-                return !!formData.customerName && !!formData.contactDetail;
+            case 4: {
+    if (!formData.customerName || !formData.contactDetail) return false;
+    if (formData.contactMethod === 'phone') return /^\(\d{3}\)-\d{3}-\d{4}$/.test(formData.contactDetail);
+    if (formData.contactMethod === 'email') return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactDetail);
+    if (formData.contactMethod === 'instagram') return /^@[a-zA-Z0-9._]{1,30}$/.test(formData.contactDetail);
+    return false;
+}
             default:
                 return false;
         }
