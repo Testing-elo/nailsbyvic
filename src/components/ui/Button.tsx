@@ -14,7 +14,7 @@ export default function Button({
     const baseStyles = 'px-8 py-3 font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed';
 
     const variants = {
-        primary: 'bg-elegantBlack text-elegantWhite hover:bg-darkGray',
+       primary: 'bg-elegantBlack text-elegantWhite hover:bg-darkGray w-full sm:w-auto',
         outline: 'border-2 border-elegantBlack text-elegantBlack hover:bg-elegantBlack hover:text-elegantWhite',
         ghost: 'text-elegantBlack hover:bg-softGray',
     };
