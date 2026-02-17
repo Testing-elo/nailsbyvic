@@ -122,12 +122,23 @@ export default function Book() {
             if (error) throw error;
 
             // Delete the booked availability slot
+const { data: slotsToDelete } = await supabase
+    .from('availabilities')
+    .select('*')
+    .eq('date', formData.date);
 
-           await supabase
+if (slotsToDelete) {
+    const slotToRemove = slotsToDelete.find(slot => 
+        slot.time.startsWith(formData.time)
+    );
+    
+    if (slotToRemove) {
+        await supabase
             .from('availabilities')
             .delete()
-            .eq('date', formData.date)
-            .eq('time', formData.time + ':00');
+            .eq('id', slotToRemove.id);
+    }
+}
 
             // Send to webhook
             await sendBookingToWebhook(booking);
