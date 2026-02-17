@@ -55,8 +55,9 @@ export default function Book() {
         setFormData({ ...formData, date, time });
     }
 
-    function handleDetailUpdate(field: string, value: string) {
-        setFormData({ ...formData, [field]: value });
+  function handleDetailUpdate(field: string, value: string) {
+    setFormData({ ...formData, [field]: value } as BookingFormData);
+      
     }
 
     function handleFileSelect(file: File | undefined) {
