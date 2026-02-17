@@ -15,7 +15,7 @@ export default function Home() {
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Link to="/book">
-                            <Button className="w-full sm:w-auto bg-elegantWhite text-elegantBlack hover:bg-softGray border-2 border-elegantWhite">
+                            <Button variant="outline" className="w-full sm:w-auto bg-elegantWhite text-elegantBlack border-elegantWhite hover:bg-softGray hover:text-elegantBlack">
                                 Book Appointment
                             </Button>
                         </Link>
