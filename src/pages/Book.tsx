@@ -61,8 +61,7 @@ function handleDetailUpdate(field: string, value: string) {
     } else {
         setFormData({ ...formData, [field]: value });
     }
-
-    }
+}
 
     function handleFileSelect(file: File | undefined) {
         setFormData({ ...formData, inspirationPhoto: file });
