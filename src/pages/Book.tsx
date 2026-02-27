@@ -8,9 +8,13 @@ import Step1Service from '@/components/booking/Step1Service';
 import Step2Addons from '@/components/booking/Step2Addons';
 import Step3DateTime from '@/components/booking/Step3DateTime';
 import Step4Details from '@/components/booking/Step4Details';
+import { useLanguage } from '@/lib/LanguageContext';
 
 export default function Book() {
     const navigate = useNavigate();
+    const { t } = useLanguage();
+    const b = t.book;
+
     const [currentStep, setCurrentStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -26,58 +30,37 @@ export default function Book() {
 
     function calculateTotal(): number {
         let total = formData.service?.price || 0;
-        formData.selectedAddons.forEach(addon => {
-            total += addon.price;
-        });
+        formData.selectedAddons.forEach(addon => { total += addon.price; });
         return total;
     }
 
-    function handleServiceSelect(service: Service) {
-        setFormData({ ...formData, service });
-    }
+    function handleServiceSelect(service: Service) { setFormData({ ...formData, service }); }
 
     function handleAddonToggle(addon: Addon) {
         const isSelected = formData.selectedAddons.some(a => a.id === addon.id);
-        if (isSelected) {
-            setFormData({
-                ...formData,
-                selectedAddons: formData.selectedAddons.filter(a => a.id !== addon.id),
-            });
-        } else {
-            setFormData({
-                ...formData,
-                selectedAddons: [...formData.selectedAddons, addon],
-            });
-        }
+        setFormData({
+            ...formData,
+            selectedAddons: isSelected
+                ? formData.selectedAddons.filter(a => a.id !== addon.id)
+                : [...formData.selectedAddons, addon],
+        });
     }
 
-    function handleDateTimeSelect(date: string, time: string) {
-        setFormData({ ...formData, date, time });
+    function handleDateTimeSelect(date: string, time: string) { setFormData({ ...formData, date, time }); }
+
+    function handleDetailUpdate(field: string, value: string) {
+        setFormData(prev => ({ ...prev, [field]: value }));
     }
 
-function handleDetailUpdate(field: string, value: string) {
-    setFormData(prev => ({ ...prev, [field]: value }));
-}
-    
-    function handleFileSelect(file: File | undefined) {
-        setFormData({ ...formData, inspirationPhoto: file });
-    }
+    function handleFileSelect(file: File | undefined) { setFormData({ ...formData, inspirationPhoto: file }); }
 
     async function uploadInspirationPhoto(file: File): Promise<string | null> {
         try {
             const fileExt = file.name.split('.').pop();
             const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-
-            const { data, error } = await supabase.storage
-                .from('portfolio-images')
-                .upload(fileName, file);
-
+            const { error } = await supabase.storage.from('portfolio-images').upload(fileName, file);
             if (error) throw error;
-
-            const { data: urlData } = supabase.storage
-                .from('portfolio-images')
-                .getPublicUrl(fileName);
-
+            const { data: urlData } = supabase.storage.from('portfolio-images').getPublicUrl(fileName);
             return urlData.publicUrl;
         } catch (err) {
             console.error('Error uploading inspiration photo:', err);
@@ -90,18 +73,13 @@ function handleDetailUpdate(field: string, value: string) {
             alert('Please complete all required fields');
             return;
         }
-
         setIsSubmitting(true);
-
         try {
-            // Upload inspiration photo if provided
             let inspirationPhotoUrl: string | undefined;
             if (formData.inspirationPhoto) {
                 const url = await uploadInspirationPhoto(formData.inspirationPhoto);
                 if (url) inspirationPhotoUrl = url;
             }
-
-            // Create booking object
             const booking = {
                 date: formData.date,
                 time: formData.time,
@@ -113,37 +91,17 @@ function handleDetailUpdate(field: string, value: string) {
                 inspiration_photo_url: inspirationPhotoUrl,
                 estimated_total: calculateTotal(),
             };
-
-            // Save to Supabase
-            const { error } = await supabase
-                .from('bookings')
-                .insert([booking]);
-
+            const { error } = await supabase.from('bookings').insert([booking]);
             if (error) throw error;
 
-            // Delete the booked availability slot
-const { data: slotsToDelete } = await supabase
-    .from('availabilities')
-    .select('*')
-    .eq('date', formData.date);
+            const { data: slotsToDelete } = await supabase
+                .from('availabilities').select('*').eq('date', formData.date);
+            if (slotsToDelete) {
+                const slotToRemove = slotsToDelete.find(slot => slot.time.startsWith(formData.time));
+                if (slotToRemove) await supabase.from('availabilities').delete().eq('id', slotToRemove.id);
+            }
 
-if (slotsToDelete) {
-    const slotToRemove = slotsToDelete.find(slot => 
-        slot.time.startsWith(formData.time)
-    );
-    
-    if (slotToRemove) {
-        await supabase
-            .from('availabilities')
-            .delete()
-            .eq('id', slotToRemove.id);
-    }
-}
-
-            // Send to webhook
             await sendBookingToWebhook(booking);
-
-            // Success!
             alert('Booking submitted successfully! We will contact you soon.');
             navigate('/');
         } catch (err: any) {
@@ -156,31 +114,29 @@ if (slotsToDelete) {
 
     function canProceed(): boolean {
         switch (currentStep) {
-            case 1:
-                return !!formData.service;
-            case 2:
-                return true; // Add-ons are optional
-            case 3:
-                return !!formData.date && !!formData.time;
+            case 1: return !!formData.service;
+            case 2: return true;
+            case 3: return !!formData.date && !!formData.time;
             case 4: {
-    if (!formData.customerName || !formData.contactDetail) return false;
-    if (formData.contactMethod === 'phone') return /^\(\d{3}\)-\d{3}-\d{4}$/.test(formData.contactDetail);
-    if (formData.contactMethod === 'email') return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactDetail);
-    if (formData.contactMethod === 'instagram') return /^@[a-zA-Z0-9._]{1,30}$/.test(formData.contactDetail);
-    return false;
-}
-            default:
+                if (!formData.customerName || !formData.contactDetail) return false;
+                if (formData.contactMethod === 'phone') return /^\(\d{3}\)-\d{3}-\d{4}$/.test(formData.contactDetail);
+                if (formData.contactMethod === 'email') return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactDetail);
+                if (formData.contactMethod === 'instagram') return /^@[a-zA-Z0-9._]{1,30}$/.test(formData.contactDetail);
                 return false;
+            }
+            default: return false;
         }
     }
+
+    const stepLabels = [b.service, b.addons, b.datetime, b.details];
 
     return (
         <div className="section-padding animate-fade-in">
             <div className="container-custom max-w-3xl">
                 <div className="text-center mb-12">
-                    <h1 className="text-5xl md:text-6xl font-serif mb-4">Book Appointment</h1>
+                    <h1 className="text-5xl md:text-6xl font-serif mb-4">{b.title}</h1>
                     <p className="text-xl text-mediumGray">
-                        Step {currentStep} of {totalSteps}
+                        {b.step} {currentStep} {b.of} {totalSteps}
                     </p>
                 </div>
 
@@ -190,55 +146,29 @@ if (slotsToDelete) {
                         {[1, 2, 3, 4].map((step) => (
                             <div
                                 key={step}
-                                className={`w-1/4 h-2 ${step <= currentStep ? 'bg-elegantBlack' : 'bg-mediumGray'
-                                    } ${step !== 1 ? 'ml-2' : ''}`}
+                                className={`w-1/4 h-2 ${step <= currentStep ? 'bg-elegantBlack' : 'bg-mediumGray'} ${step !== 1 ? 'ml-2' : ''}`}
                             />
                         ))}
                     </div>
                     <div className="flex justify-between text-sm text-mediumGray mt-2">
-                        <span>Service</span>
-                        <span>Add-ons</span>
-                        <span>Date & Time</span>
-                        <span>Details</span>
+                        {stepLabels.map((label, i) => (
+                            <span key={i}>{label}</span>
+                        ))}
                     </div>
                 </div>
 
                 {/* Step Content */}
                 <div className="mb-12">
-                    {currentStep === 1 && (
-                        <Step1Service
-                            selectedService={formData.service}
-                            onSelect={handleServiceSelect}
-                        />
-                    )}
-                    {currentStep === 2 && (
-                        <Step2Addons
-                            selectedAddons={formData.selectedAddons}
-                            onToggleAddon={handleAddonToggle}
-                        />
-                    )}
-                    {currentStep === 3 && (
-                        <Step3DateTime
-                            selectedDate={formData.date}
-                            selectedTime={formData.time}
-                            onSelectDateTime={handleDateTimeSelect}
-                        />
-                    )}
-                    {currentStep === 4 && (
-                        <Step4Details
-                            customerName={formData.customerName}
-                            contactMethod={formData.contactMethod}
-                            contactDetail={formData.contactDetail}
-                            onUpdate={handleDetailUpdate}
-                            onFileSelect={handleFileSelect}
-                        />
-                    )}
+                    {currentStep === 1 && <Step1Service selectedService={formData.service} onSelect={handleServiceSelect} />}
+                    {currentStep === 2 && <Step2Addons selectedAddons={formData.selectedAddons} onToggleAddon={handleAddonToggle} />}
+                    {currentStep === 3 && <Step3DateTime selectedDate={formData.date} selectedTime={formData.time} onSelectDateTime={handleDateTimeSelect} />}
+                    {currentStep === 4 && <Step4Details customerName={formData.customerName} contactMethod={formData.contactMethod} contactDetail={formData.contactDetail} onUpdate={handleDetailUpdate} onFileSelect={handleFileSelect} />}
                 </div>
 
                 {/* Summary */}
                 {formData.service && (
                     <div className="bg-softGray p-6 mb-8">
-                        <h3 className="font-serif text-xl mb-4">Booking Summary</h3>
+                        <h3 className="font-serif text-xl mb-4">{b.summary}</h3>
                         <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                                 <span>{formData.service.name}</span>
@@ -251,36 +181,25 @@ if (slotsToDelete) {
                                 </div>
                             ))}
                             <div className="border-t border-mediumGray pt-2 mt-2 flex justify-between font-bold">
-                                <span>Estimated Total</span>
+                                <span>{b.estimatedTotal}</span>
                                 <span>${calculateTotal()}</span>
                             </div>
                         </div>
                     </div>
                 )}
 
-                {/* Navigation Buttons */}
+                {/* Navigation */}
                 <div className="flex justify-between">
-                    <Button
-                        variant="outline"
-                        onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
-                        disabled={currentStep === 1}
-                    >
-                        Previous
+                    <Button variant="outline" onClick={() => setCurrentStep(Math.max(1, currentStep - 1))} disabled={currentStep === 1}>
+                        {b.previous}
                     </Button>
-
                     {currentStep < totalSteps ? (
-                        <Button
-                            onClick={() => setCurrentStep(currentStep + 1)}
-                            disabled={!canProceed()}
-                        >
-                            Next Step
+                        <Button onClick={() => setCurrentStep(currentStep + 1)} disabled={!canProceed()}>
+                            {b.next}
                         </Button>
                     ) : (
-                        <Button
-                            onClick={handleSubmit}
-                            disabled={!canProceed() || isSubmitting}
-                        >
-                            {isSubmitting ? 'Submitting...' : 'Confirm Booking'}
+                        <Button onClick={handleSubmit} disabled={!canProceed() || isSubmitting}>
+                            {isSubmitting ? b.submitting : b.confirm}
                         </Button>
                     )}
                 </div>
