@@ -1,17 +1,19 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
+import { useLanguage } from '@/lib/LanguageContext';
 
 export default function Navigation() {
     const location = useLocation();
     const [menuOpen, setMenuOpen] = useState(false);
+    const { lang, toggleLang, t } = useLanguage();
 
     const navLinks = [
-        { path: '/', label: 'Home' },
-        { path: '/services', label: 'Services' },
-        { path: '/portfolio', label: 'Portfolio' },
-        { path: '/availability', label: 'Availability' },
-        { path: '/book', label: 'Book Now' },
-        { path: '/policy', label: 'Politique' },
+        { path: '/', label: t.nav.home },
+        { path: '/services', label: t.nav.services },
+        { path: '/portfolio', label: t.nav.portfolio },
+        { path: '/availability', label: t.nav.availability },
+        { path: '/book', label: t.nav.book },
+        { path: '/policy', label: t.nav.policy },
     ];
 
     return (
@@ -41,23 +43,39 @@ export default function Navigation() {
                                 {link.label}
                             </Link>
                         ))}
+
+                        {/* Language Toggle */}
+                        <button
+                            onClick={toggleLang}
+                            className="text-sm font-medium border border-mediumGray px-3 py-1 hover:border-elegantBlack hover:text-elegantBlack text-mediumGray transition-colors"
+                        >
+                            {lang === 'fr' ? 'EN' : 'FR'}
+                        </button>
                     </div>
 
-                    {/* Mobile Menu Button */}
-                    <button
-                        className="md:hidden text-elegantBlack"
-                        onClick={() => setMenuOpen(!menuOpen)}
-                    >
-                        {menuOpen ? (
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        ) : (
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                            </svg>
-                        )}
-                    </button>
+                    {/* Mobile: lang toggle + hamburger */}
+                    <div className="md:hidden flex items-center gap-3">
+                        <button
+                            onClick={toggleLang}
+                            className="text-sm font-medium border border-mediumGray px-3 py-1 hover:border-elegantBlack text-mediumGray transition-colors"
+                        >
+                            {lang === 'fr' ? 'EN' : 'FR'}
+                        </button>
+                        <button
+                            className="text-elegantBlack"
+                            onClick={() => setMenuOpen(!menuOpen)}
+                        >
+                            {menuOpen ? (
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            ) : (
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                                </svg>
+                            )}
+                        </button>
+                    </div>
                 </div>
 
                 {/* Mobile Navigation */}
