@@ -1,39 +1,49 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { PortfolioItem } from '@/types';
-import { PORTFOLIO_CATEGORIES } from '@/utils/constants';
 import { useLanguage } from '@/lib/LanguageContext';
+
+interface PortfolioItem {
+    id: string;
+    url: string;
+    title: string;
+    category: string;
+}
+
+interface DBCategory {
+    id: string;
+    label: string;
+    sort_order: number;
+}
 
 export default function Portfolio() {
     const { t } = useLanguage();
     const p = t.portfolio;
 
     const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
+    const [categories, setCategories] = useState<DBCategory[]>([]);
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        fetchPortfolio();
-    }, []);
-
-    async function fetchPortfolio() {
-        try {
-            setLoading(true);
-            const { data, error } = await supabase
-                .from('portfolio')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (error) throw error;
-            setPortfolioItems(data || []);
-        } catch (err: any) {
-            setError(err.message);
-            console.error('Error fetching portfolio:', err);
-        } finally {
-            setLoading(false);
+        async function fetchData() {
+            try {
+                const [itemsRes, catsRes] = await Promise.all([
+                    supabase.from('portfolio').select('*').order('created_at', { ascending: false }),
+                    supabase.from('portfolio_categories').select('*').order('sort_order'),
+                ]);
+                if (itemsRes.error) throw itemsRes.error;
+                if (catsRes.error) throw catsRes.error;
+                setPortfolioItems(itemsRes.data || []);
+                setCategories(catsRes.data || []);
+            } catch (err: any) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
         }
-    }
+        fetchData();
+    }, []);
 
     const filteredItems = selectedCategory === 'all'
         ? portfolioItems
@@ -47,20 +57,32 @@ export default function Portfolio() {
                     <p className="text-xl text-mediumGray max-w-2xl mx-auto">{p.subtitle}</p>
                 </div>
 
-                <div className="flex flex-wrap justify-center gap-4 mb-12">
-                    {PORTFOLIO_CATEGORIES.map((category) => (
+                {/* Category Filters */}
+                {categories.length > 0 && (
+                    <div className="flex flex-wrap justify-center gap-4 mb-12">
                         <button
-                            key={category.id}
-                            onClick={() => setSelectedCategory(category.id)}
-                            className={`px-6 py-2 border-2 transition-all ${selectedCategory === category.id
+                            onClick={() => setSelectedCategory('all')}
+                            className={`px-6 py-2 border-2 transition-all ${selectedCategory === 'all'
                                 ? 'bg-elegantBlack text-elegantWhite border-elegantBlack'
                                 : 'bg-elegantWhite text-elegantBlack border-mediumGray hover:border-elegantBlack'
                             }`}
                         >
-                            {category.label}
+                            All
                         </button>
-                    ))}
-                </div>
+                        {categories.map(cat => (
+                            <button
+                                key={cat.id}
+                                onClick={() => setSelectedCategory(cat.id)}
+                                className={`px-6 py-2 border-2 transition-all ${selectedCategory === cat.id
+                                    ? 'bg-elegantBlack text-elegantWhite border-elegantBlack'
+                                    : 'bg-elegantWhite text-elegantBlack border-mediumGray hover:border-elegantBlack'
+                                }`}
+                            >
+                                {cat.label}
+                            </button>
+                        ))}
+                    </div>
+                )}
 
                 {loading && (
                     <div className="text-center py-12">
@@ -82,7 +104,7 @@ export default function Portfolio() {
 
                 {!loading && !error && filteredItems.length > 0 && (
                     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                        {filteredItems.map((item) => (
+                        {filteredItems.map(item => (
                             <div key={item.id} className="group cursor-pointer">
                                 <div className="aspect-square overflow-hidden bg-softGray">
                                     <img
