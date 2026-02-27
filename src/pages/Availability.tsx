@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Availability } from '@/types';
+import { useLanguage } from '@/lib/LanguageContext';
 
 export default function AvailabilityPage() {
+    const { t, lang } = useLanguage();
+    const a = t.availability;
+
     const [availabilities, setAvailabilities] = useState<Availability[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -25,28 +29,24 @@ export default function AvailabilityPage() {
             setAvailabilities(data || []);
         } catch (err: any) {
             setError(err.message);
-            console.error('Error fetching availabilities:', err);
         } finally {
             setLoading(false);
         }
     }
 
-    // Group availabilities by date
     const groupedByDate = availabilities.reduce((acc, avail) => {
-        if (!acc[avail.date]) {
-            acc[avail.date] = [];
-        }
+        if (!acc[avail.date]) acc[avail.date] = [];
         acc[avail.date].push(avail);
         return acc;
     }, {} as Record<string, Availability[]>);
 
     function formatDate(dateString: string): string {
         const date = new Date(dateString + 'T00:00:00');
-        return date.toLocaleDateString('en-US', {
+        return date.toLocaleDateString(lang === 'fr' ? 'fr-CA' : 'en-US', {
             weekday: 'long',
             year: 'numeric',
             month: 'long',
-            day: 'numeric'
+            day: 'numeric',
         });
     }
 
@@ -62,39 +62,33 @@ export default function AvailabilityPage() {
         <div className="section-padding animate-fade-in">
             <div className="container-custom max-w-4xl">
                 <div className="text-center mb-12">
-                    <h1 className="text-5xl md:text-6xl font-serif mb-4">Availability</h1>
-                    <p className="text-xl text-mediumGray">
-                        Check available appointment slots and book your preferred time
-                    </p>
+                    <h1 className="text-5xl md:text-6xl font-serif mb-4">{a.title}</h1>
+                    <p className="text-xl text-mediumGray">{a.subtitle}</p>
                 </div>
 
-                {/* Loading State */}
                 {loading && (
                     <div className="text-center py-12">
-                        <p className="text-mediumGray">Loading availability...</p>
+                        <p className="text-mediumGray">{a.loading}</p>
                     </div>
                 )}
 
-                {/* Error State */}
                 {error && (
                     <div className="text-center py-12">
-                        <p className="text-red-500">Error loading availability: {error}</p>
+                        <p className="text-red-500">{a.error}: {error}</p>
                     </div>
                 )}
 
-                {/* Empty State */}
                 {!loading && !error && availabilities.length === 0 && (
                     <div className="text-center py-12">
-                        <p className="text-mediumGray">No available slots at the moment. Please check back later!</p>
+                        <p className="text-mediumGray">{a.empty}</p>
                     </div>
                 )}
 
-                {/* Availability List */}
                 {!loading && !error && Object.keys(groupedByDate).length > 0 && (
                     <div className="space-y-8">
                         {Object.entries(groupedByDate).map(([date, slots]) => (
                             <div key={date} className="border border-mediumGray p-6">
-                                <h2 className="text-2xl font-serif mb-4">{formatDate(date)}</h2>
+                                <h2 className="text-2xl font-serif mb-4 capitalize">{formatDate(date)}</h2>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                                     {slots.map((slot) => (
                                         <div
@@ -110,16 +104,13 @@ export default function AvailabilityPage() {
                     </div>
                 )}
 
-                {/* CTA */}
                 <div className="mt-12 text-center">
-                    <p className="text-mediumGray mb-4">
-                        Found your perfect time slot?
-                    </p>
+                    <p className="text-mediumGray mb-4">{a.ctaText}</p>
                     <a
                         href="/book"
                         className="inline-block px-8 py-3 bg-elegantBlack text-elegantWhite hover:bg-darkGray transition-colors"
                     >
-                        Book Appointment
+                        {a.ctaBtn}
                     </a>
                 </div>
             </div>
