@@ -9,8 +9,6 @@ import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import Policy from './pages/Policy';
 
-<Route path="/policy" element={<Policy />} />
-
 function App() {
     return (
         <Routes>
@@ -23,6 +21,7 @@ function App() {
             </Route>
             <Route path="/admin" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/policy" element={<Policy />} />
         </Routes>
     );
 }
