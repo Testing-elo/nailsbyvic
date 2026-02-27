@@ -5,14 +5,12 @@ import App from './App';
 import './index.css';
 import { LanguageProvider } from './lib/LanguageContext';
 
-<LanguageProvider>
-    <App />
-</LanguageProvider>
-
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
         <BrowserRouter>
-            <App />
+            <LanguageProvider>
+                <App />
+            </LanguageProvider>
         </BrowserRouter>
     </React.StrictMode>
 );
