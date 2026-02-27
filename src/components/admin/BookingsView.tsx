@@ -5,7 +5,7 @@ import { Booking } from '@/types';
 export default function BookingsView() {
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [loading, setLoading] = useState(true);
-    const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [deletingId, setDeletingId] = useState<string | null | undefined>(null);
 
     useEffect(() => {
         fetchBookings();
@@ -28,7 +28,8 @@ export default function BookingsView() {
         }
     }
 
-    async function deleteBooking(id: string) {
+    async function deleteBooking(id: string | undefined) {
+        if (!id) return;
         if (!confirm('Are you sure you want to delete this booking?')) return;
         try {
             setDeletingId(id);
