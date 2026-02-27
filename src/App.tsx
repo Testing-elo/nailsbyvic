@@ -12,17 +12,17 @@ import Policy from './pages/Policy';
 function App() {
     return (
         <Routes>
-            <Route path="/" element={<Layout />}>
-                <Route index element={<Home />} />
-                <Route path="services" element={<Services />} />
-                <Route path="portfolio" element={<Portfolio />} />
-                <Route path="availability" element={<Availability />} />
-                <Route path="book" element={<Book />} />
-            </Route>
-            <Route path="/admin" element={<AdminLogin />} />
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/policy" element={<Policy />} />
-        </Routes>
+    <Route path="/" element={<Layout />}>
+        <Route index element={<Home />} />
+        <Route path="services" element={<Services />} />
+        <Route path="portfolio" element={<Portfolio />} />
+        <Route path="availability" element={<Availability />} />
+        <Route path="book" element={<Book />} />
+        <Route path="policy" element={<Policy />} />  {/* moved here */}
+    </Route>
+    <Route path="/admin" element={<AdminLogin />} />
+    <Route path="/admin/dashboard" element={<AdminDashboard />} />
+</Routes>
     );
 }
 
