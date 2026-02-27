@@ -33,7 +33,8 @@ export default function Layout() {
                         <div>
                             <h4 className="font-semibold mb-4">Connect</h4>
                             <ul className="space-y-2 text-mediumGray">
-                                <li>Instagram: @nailsbyvic</li>
+                                <li>Instagram: @nailsby_.vic</li>
+                                <li>Phone: (438) 865-9278</li>
                             </ul>
                         </div>
                     </div>
