@@ -7,6 +7,9 @@ import Availability from './pages/Availability';
 import Book from './pages/Book';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
+import Policy from './pages/Policy';
+
+<Route path="/policy" element={<Policy />} />
 
 function App() {
     return (
