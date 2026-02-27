@@ -1,8 +1,12 @@
 import { Link } from 'react-router-dom';
 import { SERVICES } from '@/utils/constants';
 import Button from '@/components/ui/Button';
+import { useLanguage } from '@/lib/LanguageContext';
 
 export default function Services() {
+    const { t } = useLanguage();
+    const s = t.services;
+
     const groupedServices = {
         gelx:        SERVICES.filter(s => s.category === 'manicure'),
         builder:     SERVICES.filter(s => s.category === 'pedicure'),
@@ -28,40 +32,28 @@ export default function Services() {
         <div className="section-padding animate-fade-in">
             <div className="container-custom">
                 <div className="text-center mb-16">
-                    <h1 className="text-5xl md:text-6xl font-serif mb-4">Nos Services</h1>
-                    <p className="text-xl text-mediumGray max-w-2xl mx-auto">
-                        Tarifs chez Nails by Vic
-                    </p>
+                    <h1 className="text-5xl md:text-6xl font-serif mb-4">{s.title}</h1>
+                    <p className="text-xl text-mediumGray max-w-2xl mx-auto">{s.subtitle}</p>
                 </div>
 
-                {/* Gel X Poses */}
                 <section className="mb-16">
-                    <h2 className="text-3xl font-serif mb-8 border-b border-mediumGray pb-4">
-                        Pose d&apos;Ongles Gel X
-                    </h2>
+                    <h2 className="text-3xl font-serif mb-8 border-b border-mediumGray pb-4">{s.gelxTitle}</h2>
                     {renderCards(groupedServices.gelx)}
                 </section>
 
-                {/* Builder Gel */}
                 <section className="mb-16">
                     <h2 className="text-3xl font-serif mb-8 border-b border-mediumGray pb-4">
-                        Builder Gel{' '}
-                        <span className="text-lg font-sans text-mediumGray">(sur ongles naturels)</span>
+                        {s.builderTitle}
                     </h2>
                     {renderCards(groupedServices.builder)}
                 </section>
 
-                {/* Remplissage Gel X */}
                 <section className="mb-16">
-                    <h2 className="text-3xl font-serif mb-8 border-b border-mediumGray pb-4">
-                        Remplissage Gel X
-                    </h2>
+                    <h2 className="text-3xl font-serif mb-8 border-b border-mediumGray pb-4">{s.remplissageTitle}</h2>
                     {renderCards(groupedServices.remplissage)}
-
-                    {/* Design add-on legend */}
                     <div className="mt-6 p-6 bg-softGray">
                         <p className="text-sm font-semibold uppercase tracking-widest mb-3 text-mediumGray">
-                            Suppléments de design
+                            {s.designAddons}
                         </p>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                             <div>Couleur simple <span className="font-semibold">+$5</span></div>
@@ -72,22 +64,16 @@ export default function Services() {
                     </div>
                 </section>
 
-                {/* Remplissage Builder Gel & Soak Off */}
                 <section className="mb-16">
-                    <h2 className="text-3xl font-serif mb-8 border-b border-mediumGray pb-4">
-                        Remplissage Builder Gel &amp; Soak Off
-                    </h2>
+                    <h2 className="text-3xl font-serif mb-8 border-b border-mediumGray pb-4">{s.otherTitle}</h2>
                     {renderCards(groupedServices.other)}
                 </section>
 
-                {/* CTA */}
                 <div className="text-center mt-16 p-12 bg-softGray">
-                    <h2 className="text-3xl font-serif mb-4">Prête à réserver?</h2>
-                    <p className="text-mediumGray mb-6">
-                        Choisissez votre service et réservez votre rendez-vous
-                    </p>
+                    <h2 className="text-3xl font-serif mb-4">{s.ctaTitle}</h2>
+                    <p className="text-mediumGray mb-6">{s.ctaDesc}</p>
                     <Link to="/book">
-                        <Button>Réserver</Button>
+                        <Button>{s.ctaBtn}</Button>
                     </Link>
                 </div>
             </div>
