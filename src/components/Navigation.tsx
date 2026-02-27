@@ -11,6 +11,7 @@ export default function Navigation() {
         { path: '/portfolio', label: 'Portfolio' },
         { path: '/availability', label: 'Availability' },
         { path: '/book', label: 'Book Now' },
+        { path: '/policy', label: 'Politique' },
     ];
 
     return (
