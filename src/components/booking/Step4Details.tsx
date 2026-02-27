@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import Input from '@/components/ui/Input';
-import { CONTACT_METHODS } from '@/utils/constants';
 
 interface Step4Props {
     customerName: string;
-    contactMethod: 'email' | 'phone' | 'instagram';
+    contactMethod: 'phone' | 'instagram';
     contactDetail: string;
     onUpdate: (field: string, value: string) => void;
     onFileSelect: (file: File | undefined) => void;
@@ -17,10 +16,6 @@ function formatPhone(value: string): string {
     return `(${digits.slice(0, 3)})-${digits.slice(3, 6)}-${digits.slice(6)}`;
 }
 
-function isValidEmail(email: string): boolean {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
 function isValidInstagram(handle: string): boolean {
     return /^@[a-zA-Z0-9._]{1,30}$/.test(handle);
 }
@@ -28,6 +23,11 @@ function isValidInstagram(handle: string): boolean {
 function isValidPhone(phone: string): boolean {
     return /^\(\d{3}\)-\d{3}-\d{4}$/.test(phone);
 }
+
+const CONTACT_METHODS = [
+    { value: 'phone', label: 'Phone Number' },
+    { value: 'instagram', label: 'Instagram' },
+] as const;
 
 export default function Step4Details({
     customerName,
@@ -53,15 +53,12 @@ export default function Step4Details({
     function handleContactChange(value: string) {
         if (contactMethod === 'phone') {
             onUpdate('contactDetail', formatPhone(value));
-        } else if (contactMethod === 'instagram') {
-            // Auto-add @ if missing
+        } else {
             let formatted = value;
             if (value.length > 0 && !value.startsWith('@')) {
                 formatted = '@' + value;
             }
             onUpdate('contactDetail', formatted);
-        } else {
-            onUpdate('contactDetail', value);
         }
     }
 
@@ -69,9 +66,6 @@ export default function Step4Details({
         if (!contactTouched || !contactDetail) return null;
         if (contactMethod === 'phone' && !isValidPhone(contactDetail)) {
             return 'Please enter a valid phone number: (514)-123-1234';
-        }
-        if (contactMethod === 'email' && !isValidEmail(contactDetail)) {
-            return 'Please enter a valid email: johndoe@gmail.com';
         }
         if (contactMethod === 'instagram' && !isValidInstagram(contactDetail)) {
             return 'Please enter a valid Instagram handle: @username';
@@ -119,24 +113,12 @@ export default function Step4Details({
 
                 <div>
                     <Input
-                        label={
-                            contactMethod === 'email'
-                                ? 'Email Address *'
-                                : contactMethod === 'phone'
-                                    ? 'Phone Number *'
-                                    : 'Instagram Handle *'
-                        }
+                        label={contactMethod === 'phone' ? 'Phone Number *' : 'Instagram Handle *'}
                         type="text"
                         value={contactDetail}
                         onChange={(e) => handleContactChange(e.target.value)}
                         onBlur={() => setContactTouched(true)}
-                        placeholder={
-                            contactMethod === 'email'
-                                ? 'johndoe@gmail.com'
-                                : contactMethod === 'phone'
-                                    ? '(514)-123-1234'
-                                    : '@yourusername'
-                        }
+                        placeholder={contactMethod === 'phone' ? '(514)-123-1234' : '@yourusername'}
                         required
                     />
                     {contactError && (
@@ -144,11 +126,12 @@ export default function Step4Details({
                     )}
                 </div>
 
+                {/* Inspiration Photo — REQUIRED */}
                 <div>
                     <label className="block text-sm font-medium mb-2">
-                        Inspiration Photo (Optional)
+                        Inspiration Photo *
                     </label>
-                    <div className="border-2 border-dashed border-mediumGray p-6 text-center hover:border-elegantBlack transition-colors">
+                    <div className={`border-2 border-dashed p-6 text-center transition-colors ${fileName ? 'border-elegantBlack' : 'border-mediumGray hover:border-elegantBlack'}`}>
                         <input
                             type="file"
                             id="inspiration-photo"
@@ -167,6 +150,9 @@ export default function Step4Details({
                                     <>Click to upload a photo of your desired nail design</>
                                 )}
                             </p>
+                            {!fileName && (
+                                <p className="text-sm text-red-400 mt-1">Required to proceed</p>
+                            )}
                         </label>
                     </div>
                 </div>
